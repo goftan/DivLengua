@@ -1,14 +1,35 @@
 from flask import Flask, request, render_template, make_response, session
 import base64
 import pickle
+import logging
+import json
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 
-app.config['DEBUG'] = False
+app.debug = True
+logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+
+app.config['DEBUG'] = True
 app.config.update(dict(
     SECRET_KEY= "woopie",
     SESSION_COOKIE_HTTPONLY = True
 ))
+
+def pretty_print_POST(req):
+    """
+    At this point it is completely built and ready
+    to be fired; it is "prepared".
+
+    However pay attention at the formatting used in 
+    this function because it is programmed to be pretty 
+    printed and may differ from the actual request.
+    """
+    return str('{}\n{}\r\n{}\r\n\r\n{}'.format(
+        '-----------START-----------',
+        req.method + ' ' + req.url,
+        '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
+        req.body,
+    ))
 
 class usr:
     def __init__(self, username, password):
@@ -21,6 +42,8 @@ def start():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    app.logger.info(request.data.username)
+
     if 'rememberme' in request.cookies:
         b64=request.cookies.get('rememberme')
         a = pickle.loads(base64.b64decode(b64))

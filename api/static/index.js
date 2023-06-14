@@ -238,4 +238,4 @@ function restartQuiz() {
     countViewed = 0;
 }
 
-selectPage('language_page');
+selectPage('login_page');

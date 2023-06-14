@@ -1,7 +1,7 @@
 signined = false;
 
 function signin() {
-    d3.json('https://goftan.herokuapp.com/signin', {
+    d3.json('/login', {
       method:"POST",
       body: JSON.stringify({
         username: document.getElementById('username').value,
