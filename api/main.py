@@ -42,8 +42,9 @@ def start():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    app.logger.info(request.data.username)
-
+    # app.logger.info(request.data.username)
+    # app.logger.info(username)
+    # app.logger.info(password)
     if 'rememberme' in request.cookies:
         b64=request.cookies.get('rememberme')
         a = pickle.loads(base64.b64decode(b64))
@@ -51,9 +52,12 @@ def login():
         session['loggedin'] = True
         return render_template("loggedin.html")
     else:
+        
         if request.method == 'POST':
-            username = request.form['username']
-            password = request.form['password']
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+    
             # Here you should add the logic to check the username and password
             # For example, you can check them against a database
             if username == 'admin' and password == 'password':
