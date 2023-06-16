@@ -98,7 +98,7 @@ function startQuiz() {
 
     d3.selectAll('.mycheckbox:checked').each(function() {
         var topic_name = d3.select(this).node().value.replaceAll(' ','') + '.json';
-        readers.push(d3.json(get_selected_language() + '/' + topic_name));
+        readers.push(d3.json('static/' + get_selected_language() + '/' + topic_name));
     });
 
     Promise.allSettled(readers).then(function(files) {
