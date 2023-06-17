@@ -2,7 +2,7 @@ Flask
 flask-cors
 requests
 Werkzeug
-# firebase-admin
+firebase-admin
 SQLAlchemy 
 Flask-SQLAlchemy
 yagmail
