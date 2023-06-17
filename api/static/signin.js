@@ -1,5 +1,31 @@
 signined = false;
 
+function register() {
+  d3.json('/register', {
+    method:"POST",
+    body: JSON.stringify({
+      username: document.getElementById('username').value,
+      password: document.getElementById('password').value
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+      "Access-Control-Allow-Origin": "*"
+    }
+  })
+  // .then(json => {
+  //     if(json.status === 'loggedin' || json.status === 'registered') {
+  //         localStorage.setItem('username', json.username);
+  //         localStorage.setItem('points', json.points);
+  //         localStorage.setItem('status', json.status);
+  //         d3.select('#hi_user').html('Hi, ' + json.username);
+  //         selectPage('language_page');
+  //         signined = true;
+  //     } else {
+  //         alert('Wrong username or password');
+  //     }           
+  // });
+}
+
 function signin() {
     d3.json('/login', {
       method:"POST",
@@ -12,18 +38,18 @@ function signin() {
         "Access-Control-Allow-Origin": "*"
       }
     })
-    .then(json => {
-        if(json.status === 'loggedin' || json.status === 'registered') {
-            localStorage.setItem('username', json.username);
-            localStorage.setItem('points', json.points);
-            localStorage.setItem('status', json.status);
-            d3.select('#hi_user').html('Hi, ' + json.username);
-            selectPage('language_page');
-            signined = true;
-        } else {
-            alert('Wrong username or password');
-        }           
-    });
+    // .then(json => {
+    //     if(json.status === 'loggedin' || json.status === 'registered') {
+    //         localStorage.setItem('username', json.username);
+    //         localStorage.setItem('points', json.points);
+    //         localStorage.setItem('status', json.status);
+    //         d3.select('#hi_user').html('Hi, ' + json.username);
+    //         selectPage('language_page');
+    //         signined = true;
+    //     } else {
+    //         alert('Wrong username or password');
+    //     }           
+    // });
 }
 
 const validateEmail = (email) => {
