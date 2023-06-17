@@ -1,22 +1,22 @@
-from flask import Flask, request, render_template, make_response, session, jsonify
+from flask import Flask, request, render_template, make_response, session
 import base64
 import pickle
 import logging
 import json
-# import firebase_admin
-# from firebase_admin import credentials, auth
+import firebase_admin
+from firebase_admin import credentials, auth
 from flask import request
-from flask_sqlalchemy import SQLAlchemy
 import os
+import yagmail
 
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///static/users.db'  # Update the database URI if needed
-db = SQLAlchemy(app)
+
 # Initialize Firebase Admin SDK
 #cred = credentials.Certificate(os.environ.get('FIREBASE_KEY'))  # Path to your service account key JSON file
-# cred = credentials.Certificate("goftan.json")  # Path to your service account key JSON file
-#firebase_admin.initialize_app(cred)
+cred = credentials.Certificate("goftan.json")  # Path to your service account key JSON file
+firebase_admin.initialize_app(cred)
+yag = yagmail.SMTP('divlengua@gmail.com', 'DivLenguaLanguageLearningApp0')  # Replace with your Gmail email address and password
 
 app.debug = True
 logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
@@ -43,42 +43,102 @@ def pretty_print_POST(req):
         req.body,
     ))
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-
-
-users = []
+class usr:
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
 @app.route("/")
 def start():
     return render_template("index.html")
+
+def send_confirmation_email(email):
+    logging.info("email looks to be sent."+ email)
+    try:
+        user = auth.get_user_by_email(email)
+
+        # Generate the email verification link
+        email_verification_link = auth.generate_email_verification_link(email)
+
+        subject = 'Confirmation Email'
+        message = f'Click the following link to confirm your email: {email_verification_link}'
+
+        yag.send(to=email, subject=subject, contents=message)
+        logging.info("email looks to be sent.")
+        return 'Confirmation email sent successfully!'
+    except:
+        return 'Error sending confirmation email'
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    send_confirmation_email(username)
 
-    user = User(username=username, password=password)
-    db.session.add(user)
-    db.session.commit()
-
-    return jsonify(message='Registration successful!')
-
+    try:
+        
+        user = auth.create_user(
+            email=username,
+            password=password
+        )
+        # email_link = auth.generate_email_verification_link(username)
+        # User registration successful
+        # You can perform additional actions or return a response indicating successful registration
+        return 'Registered successfully!'
+    except:
+        # Registration error
+        # Handle the error appropriately
+        return 'Registration failed!'
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    user = User.query.filter_by(username=username).first()
-    if user and user.password == password:
-        return jsonify(message='Login successful!')
-    else:
-        return jsonify(message='Invalid username or password.')
+    try:
+        user = auth.get_user_by_email(username)
+        # User exists, proceed with authentication
+        # Use Firebase Admin SDK to verify the password or perform other checks
+        # If authentication is successful, return a response indicating successful login
+        # Otherwise, handle the authentication failure
+        return 'Logged in successfully!'
+    except:
+        # User not found or other authentication error
+        # Handle the error appropriately
+        return 'Authentication failed!'
+    # app.logger.info(request.data.username)
+    # app.logger.info(username)
+    # app.logger.info(password)
+    # if 'rememberme' in request.cookies:
+    #     b64=request.cookies.get('rememberme')
+    #     a = pickle.loads(base64.b64decode(b64))
+    #     session['username'] = a.username
+    #     session['loggedin'] = True
+    #     return render_template("loggedin.html")
+    # else:
+        
+    #     if request.method == 'POST':
+    #         data = request.get_json()
+    #         username = data.get('username')
+    #         password = data.get('password')
+    
+    #         # Here you should add the logic to check the username and password
+    #         # For example, you can check them against a database
+    #         if username == 'admin' and password == 'password':
+    #             session['username'] = username
+    #             session['loggedin'] = True
+    #             if 'rememberme' in request.form:
+    #                 if request.form['rememberme'] == 'on':
+    #                     u1 = usr(username, password)
+    #                     ser = pickle.dumps(u1)
+    #                     b64 = base64.b64encode(ser)
+    #                     res = make_response(render_template("loggedin.html"))
+    #                     res.set_cookie("rememberme", b64, 60*60*24*15)
+    #                     return res
+    #             else:
+    #                 return render_template("loggedin.html")
+    return render_template("index.html")
 
 if __name__ == "__main__":
-    db.create_all()
     app.run(debug=True)

@@ -5,3 +5,4 @@ Werkzeug
 # firebase-admin
 SQLAlchemy 
 Flask-SQLAlchemy
+yagmail
