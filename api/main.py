@@ -16,8 +16,8 @@ app = Flask(__name__, static_url_path='/static', static_folder='static')
 #cred = credentials.Certificate(os.environ.get('FIREBASE_KEY'))  # Path to your service account key JSON file
 cred = credentials.Certificate("goftan.json")  # Path to your service account key JSON file
 firebase_admin.initialize_app(cred)
-yag = yagmail.SMTP('divlengua@gmail.com', 'DivLenguaLanguageLearningApp0')  # Replace with your Gmail email address and password
-
+#yag = yagmail.SMTP('divlengua@gmail.com', 'DivLenguaLanguageLearningApp0')  # Replace with your Gmail email address and password
+yag = yagmail.SMTP("divlengua@gmail.com", oauth2_file="client.json")
 app.debug = True
 logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
