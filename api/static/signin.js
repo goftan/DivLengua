@@ -23,11 +23,16 @@ document.getElementById("message").addEventListener("keyup", function (event) {
 })
 
 socket.on("chat", function(data) {
-    let ul = document.getElementById("chat-messages");
-    let li = document.createElement("li");
-    li.appendChild(document.createTextNode(data["username"] + ": " + data["message"]));
-    ul.appendChild(li);
-    ul.scrolltop = ul.scrollHeight;
+    d3.select("#chat-messages").append("li")
+                               .attr("class","chat-item")
+                               .html("<p class='chat-message'>" + data["username"] + ": " + data["message"] + "</p>")
+    // let ul = document.getElementById("chat-messages");
+    // let li = document.createElement("li");
+    // let textNode = document.createTextNode(data["username"] + ": " + data["message"]);
+    // textNode.style.border = "3px solid #FF0000";
+    // li.appendChild(textNode);
+    // ul.appendChild(li);
+    // ul.scrolltop = ul.scrollHeight;
 })
 
 function register() {
