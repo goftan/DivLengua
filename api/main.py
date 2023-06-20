@@ -3,13 +3,10 @@ import base64
 import pickle
 import logging
 import json
-import firebase_admin
-# from firebase_admin import credentials, auth
 from flask import request
 import os
 from flask_socketio import SocketIO 
 from flask_socketio import emit
-#import yagmail
 
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
