@@ -31,6 +31,7 @@ export FLASK_DEBUG=1
 export FLASK_APP=api/main.py 
 export FLASK_ENV=development
 flask run
+port= 5000
 ```
 
 ## One-Click Deploy

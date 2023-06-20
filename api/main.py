@@ -4,20 +4,23 @@ import pickle
 import logging
 import json
 import firebase_admin
-from firebase_admin import credentials, auth
+# from firebase_admin import credentials, auth
 from flask import request
 import os
-import yagmail
+from flask_socketio import SocketIO 
+from flask_socketio import emit
+#import yagmail
 
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
+socketio = SocketIO()
 
 # Initialize Firebase Admin SDK
 #cred = credentials.Certificate(os.environ.get('FIREBASE_KEY'))  # Path to your service account key JSON file
-cred = credentials.Certificate("goftan.json")  # Path to your service account key JSON file
-firebase_admin.initialize_app(cred)
+# cred = credentials.Certificate("goftan.json")  # Path to your service account key JSON file
+# firebase_admin.initialize_app(cred)
 #yag = yagmail.SMTP('divlengua@gmail.com', 'DivLenguaLanguageLearningApp0')  # Replace with your Gmail email address and password
-yag = yagmail.SMTP("divlengua@gmail.com", oauth2_file="client.json")
+# yag = yagmail.SMTP("divlengua@gmail.com", oauth2_file="client.json")
 app.debug = True
 logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
@@ -52,36 +55,36 @@ class usr:
 def start():
     return render_template("index.html")
 
-def send_confirmation_email(email):
-    logging.info("email looks to be sent."+ email)
-    try:
-        user = auth.get_user_by_email(email)
+# def send_confirmation_email(email):
+#     logging.info("email looks to be sent."+ email)
+#     try:
+#         # user = auth.get_user_by_email(email)
 
-        # Generate the email verification link
-        email_verification_link = auth.generate_email_verification_link(email)
+#         # Generate the email verification link
+#         # email_verification_link = auth.generate_email_verification_link(email)
 
-        subject = 'Confirmation Email'
-        message = f'Click the following link to confirm your email: {email_verification_link}'
+#         subject = 'Confirmation Email'
+#         message = f'Click the following link to confirm your email: {email_verification_link}'
 
-        yag.send(to=email, subject=subject, contents=message)
-        logging.info("email looks to be sent.")
-        return 'Confirmation email sent successfully!'
-    except:
-        return 'Error sending confirmation email'
+#         # yag.send(to=email, subject=subject, contents=message)
+#         logging.info("email looks to be sent.")
+#         return 'Confirmation email sent successfully!'
+#     except:
+#         return 'Error sending confirmation email'
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    send_confirmation_email(username)
+    # send_confirmation_email(username)
 
     try:
         
-        user = auth.create_user(
-            email=username,
-            password=password
-        )
+        # user = auth.create_user(
+        #     email=username,
+        #     password=password
+        # )
         # email_link = auth.generate_email_verification_link(username)
         # User registration successful
         # You can perform additional actions or return a response indicating successful registration
@@ -97,7 +100,7 @@ def login():
     username = data.get('username')
     password = data.get('password')
     try:
-        user = auth.get_user_by_email(username)
+        # user = auth.get_user_by_email(username)
         # User exists, proceed with authentication
         # Use Firebase Admin SDK to verify the password or perform other checks
         # If authentication is successful, return a response indicating successful login
@@ -139,6 +142,28 @@ def login():
     #             else:
     #                 return render_template("loggedin.html")
     return render_template("index.html")
+
+users = {}
+
+@socketio.on("connect")
+def handle_connect():
+    print("Client connected!")
+
+@socketio.on("user_join")
+def handle_user_join(username):
+    print(f"User {username} joined!")
+    users[username] = request.sid
+
+@socketio.on("new_message")
+def handle_new_message(message):
+    print(f"New message: {message}")
+    username = None 
+    for user in users:
+        if users[user] == request.sid:
+            username = user
+    emit("chat", {"message": message, "username": username}, broadcast=True)
+
+socketio.init_app(app)
 
 if __name__ == "__main__":
     app.run(debug=True)
