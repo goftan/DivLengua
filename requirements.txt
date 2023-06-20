@@ -2,8 +2,4 @@ Flask
 flask-cors
 requests
 Werkzeug
-firebase-admin
-SQLAlchemy 
-Flask-SQLAlchemy
-# yagmail
 Flask-SocketIO
